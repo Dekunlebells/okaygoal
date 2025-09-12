@@ -220,7 +220,7 @@ const wss = new WebSocketServer({
   maxPayload: 1024 * 1024 // 1MB max message size
 });
 
-setupWebSocket(wss);
+// setupWebSocket(wss);  // Temporarily commented out for initial deployment
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
@@ -229,13 +229,13 @@ process.on('SIGTERM', () => {
   server.close(() => {
     logger.info('HTTP server closed');
     
-    db.close().then(() => {
-      logger.info('Database connections closed');
+    // db.close().then(() => {
+    //   logger.info('Database connections closed');
       process.exit(0);
-    }).catch((error) => {
-      logger.error('Error closing database connections:', error);
-      process.exit(1);
-    });
+    // }).catch((error) => {
+    //   logger.error('Error closing database connections:', error);
+    //   process.exit(1);
+    // });
   });
 });
 
@@ -245,13 +245,13 @@ process.on('SIGINT', () => {
   server.close(() => {
     logger.info('HTTP server closed');
     
-    db.close().then(() => {
-      logger.info('Database connections closed');
+    // db.close().then(() => {
+    //   logger.info('Database connections closed');
       process.exit(0);
-    }).catch((error) => {
-      logger.error('Error closing database connections:', error);
-      process.exit(1);
-    });
+    // }).catch((error) => {
+    //   logger.error('Error closing database connections:', error);
+    //   process.exit(1);
+    // });
   });
 });
 
