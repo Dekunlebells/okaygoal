@@ -1,0 +1,44 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm run build"
+startCommand = "npm run start:prod"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+numReplicas = 1
+
+[[deploy.environmentVariables]]
+name = "NODE_ENV"
+value = "production"
+
+[[deploy.environmentVariables]]
+name = "PORT"
+value = "3001"
+
+# Production environment with PostgreSQL and Redis
+[environments.production]
+deployments = true
+
+[[environments.production.plugins]]
+type = "postgresql"
+
+[[environments.production.plugins]]
+type = "redis"
+
+# Staging environment for testing
+[environments.staging]
+deployments = true
+
+[[environments.staging.plugins]]
+type = "postgresql"
+
+[[environments.staging.plugins]]
+type = "redis"
+
+# Resource limits for cost optimization
+[deploy.resources]
+memory = "512MB"
+cpu = "0.5"
