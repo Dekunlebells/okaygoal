@@ -2,11 +2,11 @@
   "name": "okaygoal-backend",
   "version": "1.0.0",
   "description": "OkayGoal Backend API - Football Live Scores & Statistics",
-  "main": "dist/server.js",
+  "main": "dist/simple-server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/simple-server.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint src --ext .ts,.tsx --fix",
