@@ -31,7 +31,8 @@ class Database {
       password: process.env.REDIS_PASSWORD || undefined
     });
 
-    this.initializeConnections();
+    // Don't initialize connections immediately - let health check handle it gracefully
+    // this.initializeConnections();
   }
 
   public static getInstance(): Database {
@@ -191,17 +192,24 @@ class Database {
     const health = { postgres: false, redis: false };
 
     try {
+      // Try to connect if not already connected
+      if (!this.redis.isOpen) {
+        await this.redis.connect();
+      }
       await this.query('SELECT 1');
       health.postgres = true;
     } catch (error) {
-      logger.error('PostgreSQL health check failed:', error);
+      logger.info('PostgreSQL health check failed (expected if not configured yet):', error);
     }
 
     try {
+      if (!this.redis.isOpen) {
+        await this.redis.connect();
+      }
       await this.redis.ping();
       health.redis = true;
     } catch (error) {
-      logger.error('Redis health check failed:', error);
+      logger.info('Redis health check failed (expected if not configured yet):', error);
     }
 
     return health;
