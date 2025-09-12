@@ -31,8 +31,7 @@ class Database {
       password: process.env.REDIS_PASSWORD || undefined
     });
 
-    // Don't initialize connections immediately - let health check handle it gracefully
-    // this.initializeConnections();
+    this.initializeConnections();
   }
 
   public static getInstance(): Database {

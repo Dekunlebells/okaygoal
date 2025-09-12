@@ -8,8 +8,8 @@ import dotenv from 'dotenv';
 
 // Import utilities and middleware
 import { logger, loggerHelpers } from '@/utils/logger';
-// import { db } from '@/database/connection';  // Temporarily commented out
-// import { dynamicRateLimit } from '@/middleware/rateLimit';  // Temporarily commented out
+import { db } from '@/database/connection';
+import { dynamicRateLimit } from '@/middleware/rateLimit';
 
 // Import routes (temporarily commented out for initial deployment)
 // import authRoutes from '@/routes/auth';
@@ -114,21 +114,36 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// Health check endpoint (minimal version for initial deployment)
-app.get('/health', (req: Request, res: Response) => {
-  res.status(200).json({
-    success: true,
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: NODE_ENV,
-    version: '1.0.0',
-    memory: {
-      used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
-      total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
-      external: Math.round(process.memoryUsage().external / 1024 / 1024)
-    }
-  });
+// Health check endpoint (with database connection)
+app.get('/health', async (req: Request, res: Response) => {
+  try {
+    // Check database connections
+    const health = await db.healthCheck();
+    
+    res.status(200).json({
+      success: true,
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: NODE_ENV,
+      version: process.env.npm_package_version || '1.0.0',
+      database: {
+        postgres: health.postgres,
+        redis: health.redis
+      },
+      memory: {
+        used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+        total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+        external: Math.round(process.memoryUsage().external / 1024 / 1024)
+      }
+    });
+  } catch (error) {
+    logger.error('Health check failed:', error);
+    res.status(503).json({
+      success: false,
+      error: 'Service unavailable'
+    });
+  }
 });
 
 // Rate limiting middleware (temporarily commented out for initial deployment)
@@ -229,13 +244,13 @@ process.on('SIGTERM', () => {
   server.close(() => {
     logger.info('HTTP server closed');
     
-    // db.close().then(() => {
-    //   logger.info('Database connections closed');
+    db.close().then(() => {
+      logger.info('Database connections closed');
       process.exit(0);
-    // }).catch((error) => {
-    //   logger.error('Error closing database connections:', error);
-    //   process.exit(1);
-    // });
+    }).catch((error) => {
+      logger.error('Error closing database connections:', error);
+      process.exit(1);
+    });
   });
 });
 
@@ -245,13 +260,13 @@ process.on('SIGINT', () => {
   server.close(() => {
     logger.info('HTTP server closed');
     
-    // db.close().then(() => {
-    //   logger.info('Database connections closed');
+    db.close().then(() => {
+      logger.info('Database connections closed');
       process.exit(0);
-    // }).catch((error) => {
-    //   logger.error('Error closing database connections:', error);
-    //   process.exit(1);
-    // });
+    }).catch((error) => {
+      logger.error('Error closing database connections:', error);
+      process.exit(1);
+    });
   });
 });
 
