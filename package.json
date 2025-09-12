@@ -2,8 +2,9 @@
   "name": "okaygoal",
   "version": "1.0.0",
   "description": "OkayGoal - Football Live Scores & Statistics",
+  "main": "backend/dist/server.js",
   "scripts": {
-    "build": "cd backend && npm ci && npm run build",
+    "build": "cd backend && npm install --production=false && npm run build",
     "start": "cd backend && npm start",
     "dev": "cd backend && npm run dev"
   },
