@@ -8,17 +8,17 @@ import dotenv from 'dotenv';
 
 // Import utilities and middleware
 import { logger, loggerHelpers } from '@/utils/logger';
-import { db } from '@/database/connection';
-import { dynamicRateLimit } from '@/middleware/rateLimit';
+// import { db } from '@/database/connection';  // Temporarily commented out
+// import { dynamicRateLimit } from '@/middleware/rateLimit';  // Temporarily commented out
 
-// Import routes
-import authRoutes from '@/routes/auth';
-import matchRoutes from '@/routes/matches';
-import competitionRoutes from '@/routes/competitions';
-import teamRoutes from '@/routes/teams';
-import playerRoutes from '@/routes/players';
-import userRoutes from '@/routes/users';
-import { setupWebSocket } from '@/services/websocket';
+// Import routes (temporarily commented out for initial deployment)
+// import authRoutes from '@/routes/auth';
+// import matchRoutes from '@/routes/matches';
+// import competitionRoutes from '@/routes/competitions';
+// import teamRoutes from '@/routes/teams';
+// import playerRoutes from '@/routes/players';
+// import userRoutes from '@/routes/users';
+// import { setupWebSocket } from '@/services/websocket';
 
 // Load environment variables
 dotenv.config();
@@ -114,55 +114,33 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// Health check endpoint (before rate limiting)
-app.get('/health', async (req: Request, res: Response) => {
-  try {
-    // Simple health check without database dependency for initial deployment
-    let health = { postgres: false, redis: false };
-    
-    // Try to check database if available
-    try {
-      health = await db.healthCheck();
-    } catch (error) {
-      // Database not available yet - that's OK for initial deployment
-      logger.info('Database not available yet, continuing with basic health check');
+// Health check endpoint (minimal version for initial deployment)
+app.get('/health', (req: Request, res: Response) => {
+  res.status(200).json({
+    success: true,
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: NODE_ENV,
+    version: '1.0.0',
+    memory: {
+      used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+      total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+      external: Math.round(process.memoryUsage().external / 1024 / 1024)
     }
-    
-    res.status(200).json({
-      success: true,
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      environment: NODE_ENV,
-      version: process.env.npm_package_version || '1.0.0',
-      database: {
-        postgres: health.postgres,
-        redis: health.redis
-      },
-      memory: {
-        used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
-        total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
-        external: Math.round(process.memoryUsage().external / 1024 / 1024)
-      }
-    });
-  } catch (error) {
-    logger.error('Health check failed:', error);
-    res.status(503).json({
-      success: false,
-      error: 'Service unavailable'
-    });
-  }
+  });
 });
 
-// Rate limiting middleware
-app.use(dynamicRateLimit);
+// Rate limiting middleware (temporarily commented out for initial deployment)
+// app.use(dynamicRateLimit);
 
-// API routes
-app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/matches', matchRoutes);
-app.use('/api/v1/competitions', competitionRoutes);
-app.use('/api/v1/teams', teamRoutes);
-app.use('/api/v1/players', playerRoutes);
-app.use('/api/v1/users', userRoutes);
+// API routes (temporarily commented out for initial deployment)
+// app.use('/api/v1/auth', authRoutes);
+// app.use('/api/v1/matches', matchRoutes);
+// app.use('/api/v1/competitions', competitionRoutes);
+// app.use('/api/v1/teams', teamRoutes);
+// app.use('/api/v1/players', playerRoutes);
+// app.use('/api/v1/users', userRoutes);
 
 // API documentation endpoint
 app.get('/api/v1', (req: Request, res: Response) => {
