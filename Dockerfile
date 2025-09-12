@@ -1,38 +1,5 @@
-# Multi-stage Dockerfile for OkayGoal
-# Stage 1: Build frontend
-FROM node:20-alpine AS frontend-builder
-
-WORKDIR /app/frontend
-
-# Copy package files
-COPY frontend/package*.json ./
-RUN npm ci --only=production
-
-# Copy frontend source
-COPY frontend/ ./
-
-# Build frontend
-ENV NODE_ENV=production
-RUN npm run build
-
-# Stage 2: Build backend
-FROM node:20-alpine AS backend-builder
-
-WORKDIR /app/backend
-
-# Copy package files
-COPY backend/package*.json ./
-RUN npm ci --only=production
-
-# Copy backend source
-COPY backend/ ./
-
-# Build backend
-ENV NODE_ENV=production
-RUN npm run build
-
-# Stage 3: Production image
-FROM node:20-alpine AS production
+# Backend-only Dockerfile for Railway deployment
+FROM node:20-alpine
 
 # Install security updates and necessary packages
 RUN apk update && apk add --no-cache \
@@ -47,20 +14,22 @@ RUN addgroup -g 1001 -S nodejs && \
 # Set working directory
 WORKDIR /app
 
-# Copy backend build and node_modules
-COPY --from=backend-builder --chown=okaygoal:nodejs /app/backend/dist ./backend/dist
-COPY --from=backend-builder --chown=okaygoal:nodejs /app/backend/node_modules ./backend/node_modules
-COPY --from=backend-builder --chown=okaygoal:nodejs /app/backend/package.json ./backend/
+# Copy backend package files
+COPY backend/package*.json ./
+RUN npm ci
 
-# Copy frontend build
-COPY --from=frontend-builder --chown=okaygoal:nodejs /app/frontend/dist ./frontend/dist
+# Copy backend source
+COPY backend/ ./
 
-# Copy additional necessary files
-COPY --chown=okaygoal:nodejs backend/src/database/migrations ./backend/dist/database/migrations
-COPY --chown=okaygoal:nodejs backend/src/database/seeds ./backend/dist/database/seeds
+# Build backend
+ENV NODE_ENV=production
+RUN npm run build
 
-# Create logs directory
-RUN mkdir -p /app/logs && chown okaygoal:nodejs /app/logs
+# Create logs and database directories
+RUN mkdir -p /app/logs && \
+    mkdir -p /app/database/migrations && \
+    mkdir -p /app/database/seeds && \
+    chown -R okaygoal:nodejs /app
 
 # Switch to non-root user
 USER okaygoal
@@ -76,4 +45,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
 ENTRYPOINT ["dumb-init", "--"]
 
 # Start the application
-CMD ["node", "backend/dist/server.js"]
+CMD ["npm", "start"]
