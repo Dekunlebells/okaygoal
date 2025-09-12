@@ -14,8 +14,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:ci": "jest --ci --coverage --watchAll=false",
-    "analyze": "npx vite-bundle-analyzer",
-    "postinstall": "test -d .git && husky install || true"
+    "analyze": "npx vite-bundle-analyzer"
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -63,7 +62,6 @@
     "jest-environment-jsdom": "^29.7.0",
     "ts-jest": "^29.1.1",
     "identity-obj-proxy": "^3.0.0",
-    "husky": "^8.0.3",
     "lint-staged": "^15.2.0",
     "vite-bundle-analyzer": "^0.7.0"
   },
@@ -89,11 +87,5 @@
       "prettier --write",
       "git add"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "pre-push": "npm run type-check && npm run test:ci"
-    }
   }
 }
