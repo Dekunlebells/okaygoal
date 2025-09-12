@@ -267,14 +267,19 @@ process.on('uncaughtException', (error: Error) => {
 });
 
 // Start server
-server.listen(PORT, () => {
+const HOST = process.env.HOST || '0.0.0.0';
+server.listen(PORT, HOST, () => {
   logger.info(`🚀 OkayGoal API server started`, {
+    host: HOST,
     port: PORT,
     environment: NODE_ENV,
     timestamp: new Date().toISOString(),
     nodeVersion: process.version,
     pid: process.pid
   });
+}).on('error', (error) => {
+  logger.error('Server failed to start:', error);
+  process.exit(1);
 });
 
 export default app;
