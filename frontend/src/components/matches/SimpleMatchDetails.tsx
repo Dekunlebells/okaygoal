@@ -235,16 +235,30 @@ export const SimpleMatchDetails: React.FC = () => {
               ) : (
                 <>
                   <div className="flex items-center space-x-3">
-                    <span className="text-4xl font-bold text-gray-900 dark:text-white">
+                    <span className={`text-4xl font-bold text-gray-900 dark:text-white relative ${
+                      isLive ? 'animate-pulse' : ''
+                    }`}>
                       {match.goals.home ?? 0}
+                      {isLive && (
+                        <span className="absolute inset-0 text-red-500 animate-ping opacity-20">
+                          {match.goals.home ?? 0}
+                        </span>
+                      )}
                     </span>
-                    <span className="text-2xl text-gray-400">-</span>
-                    <span className="text-4xl font-bold text-gray-900 dark:text-white">
+                    <span className={`text-2xl text-gray-400 ${isLive ? 'animate-pulse' : ''}`}>-</span>
+                    <span className={`text-4xl font-bold text-gray-900 dark:text-white relative ${
+                      isLive ? 'animate-pulse' : ''
+                    }`}>
                       {match.goals.away ?? 0}
+                      {isLive && (
+                        <span className="absolute inset-0 text-red-500 animate-ping opacity-20">
+                          {match.goals.away ?? 0}
+                        </span>
+                      )}
                     </span>
                   </div>
                   {isLive && (
-                    <div className="text-xs text-red-600 dark:text-red-400 font-medium">
+                    <div className="text-xs text-red-600 dark:text-red-400 font-medium animate-pulse">
                       {match.fixture.status.elapsed}' LIVE
                     </div>
                   )}
@@ -294,10 +308,16 @@ export const SimpleMatchDetails: React.FC = () => {
 
         {/* Status Bar */}
         {isLive && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-6">
+          <div className="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-6 animate-pulse">
             <div className="flex items-center justify-center space-x-2 text-red-700 dark:text-red-300">
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium">Live - {match.fixture.status.elapsed}'</span>
+              <div className="relative">
+                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                <div className="absolute inset-0 w-2 h-2 bg-red-500 rounded-full animate-ping opacity-50"></div>
+              </div>
+              <span className="text-sm font-medium animate-pulse">
+                Live - {match.fixture.status.elapsed}'
+              </span>
+              <div className="w-1 h-1 bg-red-500 rounded-full animate-bounce"></div>
             </div>
           </div>
         )}

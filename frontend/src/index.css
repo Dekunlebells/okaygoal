@@ -173,6 +173,41 @@
   .delay-200 {
     animation-delay: 200ms;
   }
+
+  /* Live match animations */
+  .live-glow {
+    animation: live-glow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes live-glow {
+    from {
+      box-shadow: 0 0 5px rgba(239, 68, 68, 0.4);
+    }
+    to {
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), 0 0 30px rgba(239, 68, 68, 0.4);
+    }
+  }
+
+  /* Goal celebration animation */
+  .goal-celebration {
+    animation: goal-celebration 0.8s ease-in-out;
+  }
+
+  @keyframes goal-celebration {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); color: #10b981; }
+    100% { transform: scale(1); }
+  }
+
+  /* Match card hover animation */
+  .match-card-hover {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .match-card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
   
   /* Hide scrollbar but maintain functionality */
   .scrollbar-hide {

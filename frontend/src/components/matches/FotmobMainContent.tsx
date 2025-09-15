@@ -58,6 +58,7 @@ interface FotmobMainContentProps {
 
 export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLeague = 0 }) => {
   const navigate = useNavigate();
+  const [clickedMatchId, setClickedMatchId] = useState<number | null>(null);
   // Demo matches for when API returns empty
   const demoMatches: FotmobMatch[] = [
     {
@@ -264,7 +265,11 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
   };
 
   const handleMatchClick = (matchId: number) => {
-    navigate(`/matches/${matchId}`);
+    setClickedMatchId(matchId);
+    // Add a small delay to show the click effect
+    setTimeout(() => {
+      navigate(`/matches/${matchId}`);
+    }, 150);
   };
 
   return (
@@ -399,7 +404,13 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
                   <div
                     key={match.fixture.id}
                     onClick={() => handleMatchClick(match.fixture.id)}
-                    className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors cursor-pointer"
+                    className={`flex items-center justify-between p-4 rounded-lg cursor-pointer match-card-hover transition-all duration-200 ${
+                      clickedMatchId === match.fixture.id
+                        ? 'scale-95 opacity-80'
+                        : isLive(match.fixture.status.short) 
+                          ? 'bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 live-glow' 
+                          : 'hover:bg-gray-50 dark:hover:bg-gray-700'
+                    }`}
                   >
                     {/* Home team */}
                     <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -421,15 +432,29 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
                     <div className="mx-6 text-center">
                       {isLive(match.fixture.status.short) ? (
                         <div className="flex flex-col items-center">
-                          <div className="flex items-center space-x-2 text-sm font-bold">
-                            <span>{match.goals.home ?? 0}</span>
-                            <span className="text-gray-400">-</span>
-                            <span>{match.goals.away ?? 0}</span>
+                          <div className="flex items-center space-x-2 text-lg font-bold relative">
+                            <span className="relative">
+                              <span className="text-gray-900 dark:text-white animate-pulse">
+                                {match.goals.home ?? 0}
+                              </span>
+                              <span className="absolute inset-0 text-red-500 animate-ping opacity-30">
+                                {match.goals.home ?? 0}
+                              </span>
+                            </span>
+                            <span className="text-gray-400 animate-pulse">-</span>
+                            <span className="relative">
+                              <span className="text-gray-900 dark:text-white animate-pulse">
+                                {match.goals.away ?? 0}
+                              </span>
+                              <span className="absolute inset-0 text-red-500 animate-ping opacity-30">
+                                {match.goals.away ?? 0}
+                              </span>
+                            </span>
                           </div>
                           <div className="flex items-center space-x-1 mt-1">
-                            <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
-                            <span className="text-xs text-red-500 font-medium">
-                              {match.fixture.status.elapsed}'
+                            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-red-500/50 shadow-sm"></div>
+                            <span className="text-xs text-red-500 font-medium animate-pulse">
+                              {match.fixture.status.elapsed}' LIVE
                             </span>
                           </div>
                         </div>
