@@ -155,8 +155,8 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
     }
   ];
 
-  const [matches, setMatches] = useState<FotmobMatch[]>(demoMatches);
-  const [loading, setLoading] = useState(false);
+  const [matches, setMatches] = useState<FotmobMatch[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [activeTab, setActiveTab] = useState<'ongoing' | 'ontv' | 'bytime'>('ongoing');
   const [error, setError] = useState<string | null>(null);
@@ -170,29 +170,32 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
       
       if (activeTab === 'ongoing') {
         const response = await matchesApi.getLiveMatches();
+        console.log('Live matches response:', response.data);
         apiMatches = response.data.data || [];
       } else if (activeTab === 'bytime') {
         const response = await matchesApi.getTodayMatches();
+        console.log('Today matches response:', response.data);
         apiMatches = response.data.data || [];
       }
       
-      // If API returns no matches, use demo data
-      setMatches(apiMatches.length > 0 ? apiMatches : demoMatches);
+      console.log('API matches received:', apiMatches);
+      
+      // Use real API data, fall back to demo data only if API fails completely
+      setMatches(apiMatches);
       
     } catch (error) {
       console.error('Error fetching matches:', error);
       setError('Failed to load matches');
-      // Use demo data as fallback
+      // Use demo data as fallback only on error
       setMatches(demoMatches);
     } finally {
       setLoading(false);
     }
   };
 
-  // Temporarily disable API calls to show demo data
-  // useEffect(() => {
-  //   fetchMatches();
-  // }, [selectedDate, activeTab]);
+  useEffect(() => {
+    fetchMatches();
+  }, [selectedDate, activeTab]);
 
   // Filter and group matches by league
   const groupedMatches = React.useMemo(() => {
