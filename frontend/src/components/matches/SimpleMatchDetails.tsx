@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
   Clock, 
   MapPin, 
-  User, 
-  Activity,
-  BarChart3,
+  Share2,
+  Bell,
+  MoreHorizontal,
+  TrendingUp,
   Users,
-  Tv
+  Zap
 } from 'lucide-react';
 
 // Demo match data that matches our main content
@@ -113,28 +114,27 @@ const demoMatches = [
 export const SimpleMatchDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('overview');
   
   const match = demoMatches.find(m => m.fixture.id === parseInt(id || '0'));
   
   if (!match) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">⚽</div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-              Match not found
-            </h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-4">
-              The match you're looking for doesn't exist.
-            </p>
-            <button 
-              onClick={() => navigate('/')}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Back to Home
-            </button>
-          </div>
+      <div className="min-h-screen bg-white dark:bg-gray-900">
+        <div className="max-w-md mx-auto px-4 py-12 text-center">
+          <div className="text-6xl mb-4">⚽</div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            Match not found
+          </h3>
+          <p className="text-gray-500 dark:text-gray-400 mb-4">
+            The match you're looking for doesn't exist.
+          </p>
+          <button 
+            onClick={() => navigate('/')}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Back to Home
+          </button>
         </div>
       </div>
     );
@@ -149,173 +149,225 @@ export const SimpleMatchDetails: React.FC = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
+    return new Date(dateString).toLocaleDateString('en-GB', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-4xl mx-auto p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center space-x-4">
-          <button 
-            onClick={() => navigate(-1)}
-            className="flex items-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back</span>
-          </button>
-          
-          <div className="flex items-center space-x-2 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full">
-            <img 
-              src={match.league.logo} 
-              alt={match.league.name}
-              className="w-4 h-4 object-contain"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = `https://ui-avatars.com/api/?name=${match.league.name}&size=16&background=e5e7eb&color=6b7280`;
-              }}
-            />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              {match.league.country} - {match.league.name}
-            </span>
+    <div className="min-h-screen bg-white dark:bg-gray-900">
+      {/* Header */}
+      <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <button 
+              onClick={() => navigate(-1)}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </button>
+            
+            <div className="flex items-center space-x-2">
+              <img 
+                src={match.league.logo} 
+                alt={match.league.name}
+                className="w-5 h-5 object-contain"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = `https://ui-avatars.com/api/?name=${match.league.name}&size=20&background=e5e7eb&color=6b7280`;
+                }}
+              />
+              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                {match.league.name}
+              </span>
+            </div>
           </div>
           
-          {isLive && (
-            <div className="flex items-center space-x-1 px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-xs font-medium">
-              <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
-              <span>LIVE</span>
-            </div>
-          )}
+          <div className="flex items-center space-x-1">
+            <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+              <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </button>
+            <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+              <Share2 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </button>
+            <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+              <MoreHorizontal className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </button>
+          </div>
         </div>
+      </div>
 
-        {/* Match Header */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-8 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
+      {/* Match Info */}
+      <div className="px-4 py-6">
+        {/* Teams and Score */}
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center space-x-8 mb-4">
             {/* Home Team */}
-            <div className="flex flex-col items-center space-y-4 flex-1">
+            <div className="flex flex-col items-center space-y-2">
               <img 
                 src={match.teams.home.logo} 
                 alt={match.teams.home.name}
-                className="w-16 h-16 object-contain"
+                className="w-12 h-12 object-contain"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = `https://ui-avatars.com/api/?name=${match.teams.home.name}&size=64&background=e5e7eb&color=6b7280`;
+                  target.src = `https://ui-avatars.com/api/?name=${match.teams.home.name}&size=48&background=e5e7eb&color=6b7280`;
                 }}
               />
-              <h2 className="text-xl font-bold text-center text-gray-900 dark:text-white">
+              <span className="text-sm font-medium text-gray-900 dark:text-white text-center">
                 {match.teams.home.name}
-              </h2>
+              </span>
             </div>
 
-            {/* Score and Status */}
-            <div className="flex flex-col items-center space-y-4 px-8">
+            {/* Score */}
+            <div className="flex flex-col items-center space-y-1">
               {isScheduled ? (
                 <div className="text-center">
-                  <div className="text-lg font-medium text-gray-600 dark:text-gray-400">
-                    {formatDate(match.fixture.date)}
-                  </div>
-                  <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">
                     {formatTime(match.fixture.date)}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    {formatDate(match.fixture.date)}
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center space-x-4">
-                  <span className="text-6xl font-black text-gray-900 dark:text-white">
-                    {match.goals.home ?? 0}
-                  </span>
-                  <span className="text-4xl text-gray-400">-</span>
-                  <span className="text-6xl font-black text-gray-900 dark:text-white">
-                    {match.goals.away ?? 0}
-                  </span>
-                </div>
+                <>
+                  <div className="flex items-center space-x-3">
+                    <span className="text-4xl font-bold text-gray-900 dark:text-white">
+                      {match.goals.home ?? 0}
+                    </span>
+                    <span className="text-2xl text-gray-400">-</span>
+                    <span className="text-4xl font-bold text-gray-900 dark:text-white">
+                      {match.goals.away ?? 0}
+                    </span>
+                  </div>
+                  {isLive && (
+                    <div className="text-xs text-red-600 dark:text-red-400 font-medium">
+                      {match.fixture.status.elapsed}' LIVE
+                    </div>
+                  )}
+                  {isFinished && (
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      Full Time
+                    </div>
+                  )}
+                </>
               )}
-              
-              <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                isLive 
-                  ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
-                  : isFinished
-                    ? 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
-                    : 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
-              }`}>
-                {isLive && `${match.fixture.status.elapsed}'`}
-                {isFinished && 'Full Time'}
-                {isScheduled && 'Scheduled'}
-              </div>
             </div>
 
             {/* Away Team */}
-            <div className="flex flex-col items-center space-y-4 flex-1">
+            <div className="flex flex-col items-center space-y-2">
               <img 
                 src={match.teams.away.logo} 
                 alt={match.teams.away.name}
-                className="w-16 h-16 object-contain"
+                className="w-12 h-12 object-contain"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = `https://ui-avatars.com/api/?name=${match.teams.away.name}&size=64&background=e5e7eb&color=6b7280`;
+                  target.src = `https://ui-avatars.com/api/?name=${match.teams.away.name}&size=48&background=e5e7eb&color=6b7280`;
                 }}
               />
-              <h2 className="text-xl font-bold text-center text-gray-900 dark:text-white">
+              <span className="text-sm font-medium text-gray-900 dark:text-white text-center">
                 {match.teams.away.name}
-              </h2>
+              </span>
             </div>
           </div>
 
-          {/* Match Info */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6 mt-6 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-              <Clock className="w-4 h-4" />
-              <span>{formatDate(match.fixture.date)} at {formatTime(match.fixture.date)}</span>
+          {/* Match Details */}
+          <div className="flex items-center justify-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex items-center space-x-1">
+              <Clock className="w-3 h-3" />
+              <span>{formatDate(match.fixture.date)}</span>
             </div>
-            
             {match.fixture.venue?.name && (
-              <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                <MapPin className="w-4 h-4" />
-                <span>{match.fixture.venue.name}</span>
-              </div>
+              <>
+                <span>•</span>
+                <div className="flex items-center space-x-1">
+                  <MapPin className="w-3 h-3" />
+                  <span>{match.fixture.venue.name}</span>
+                </div>
+              </>
             )}
-            
-            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-              <Tv className="w-4 h-4" />
-              <span>Available on TV</span>
-            </div>
           </div>
         </div>
 
-        {/* Match Details Tabs */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="border-b border-gray-200 dark:border-gray-700">
-            <nav className="flex space-x-8 px-6">
-              <button className="flex items-center space-x-2 py-4 px-1 border-b-2 border-blue-500 text-blue-600 dark:text-blue-400 font-medium text-sm">
-                <Activity className="w-4 h-4" />
-                <span>Overview</span>
-              </button>
-              <button className="flex items-center space-x-2 py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 font-medium text-sm">
-                <BarChart3 className="w-4 h-4" />
-                <span>Statistics</span>
-              </button>
-              <button className="flex items-center space-x-2 py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 font-medium text-sm">
-                <Users className="w-4 h-4" />
-                <span>Lineups</span>
-              </button>
-            </nav>
+        {/* Status Bar */}
+        {isLive && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-6">
+            <div className="flex items-center justify-center space-x-2 text-red-700 dark:text-red-300">
+              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+              <span className="text-sm font-medium">Live - {match.fixture.status.elapsed}'</span>
+            </div>
           </div>
+        )}
 
-          <div className="p-6">
-            <div className="text-center py-8">
-              <Activity className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+        {/* Tab Navigation */}
+        <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
+          <nav className="flex space-x-8">
+            {[
+              { id: 'overview', label: 'Overview', icon: Zap },
+              { id: 'stats', label: 'Stats', icon: TrendingUp },
+              { id: 'lineups', label: 'Lineups', icon: Users },
+            ].map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id)}
+                className={`flex items-center space-x-2 py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === id
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                <span>{label}</span>
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Tab Content */}
+        <div className="space-y-6">
+          {activeTab === 'overview' && (
+            <div className="text-center py-12">
+              <Zap className="w-12 h-12 mx-auto text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 {isScheduled ? 'Match Preview' : isLive ? 'Live Updates' : 'Match Summary'}
               </h3>
-              <p className="text-gray-500 dark:text-gray-400">
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
                 {isScheduled 
-                  ? 'Match details and team news will be available closer to kick-off'
+                  ? 'Pre-match analysis and team news will appear here'
                   : isLive 
-                    ? 'Live match events and statistics will appear here during the match'
-                    : 'Match highlights and full statistics are available after the final whistle'
+                    ? 'Live commentary and match events updating in real-time'
+                    : 'Post-match analysis and highlights available'
                 }
               </p>
             </div>
-          </div>
+          )}
+
+          {activeTab === 'stats' && (
+            <div className="text-center py-12">
+              <TrendingUp className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                Match Statistics
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
+                Detailed match statistics will be available during and after the match
+              </p>
+            </div>
+          )}
+
+          {activeTab === 'lineups' && (
+            <div className="text-center py-12">
+              <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                Team Lineups
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
+                Starting lineups and formations will be revealed closer to kick-off
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
