@@ -228,55 +228,354 @@ app.post('/api/v1/auth/register', (req, res) => {
   });
 });
 
-// Demo matches endpoint
-app.get('/api/v1/matches', (req, res) => {
-  res.json({
-    success: true,
-    data: [
-      {
-        id: 1,
-        homeTeam: 'Manchester United',
-        awayTeam: 'Liverpool',
-        homeScore: 2,
-        awayScore: 1,
-        status: 'finished',
-        date: new Date().toISOString()
-      },
-      {
-        id: 2,
-        homeTeam: 'Arsenal',
-        awayTeam: 'Chelsea',
-        homeScore: 1,
-        awayScore: 1,
-        status: 'finished',
-        date: new Date().toISOString()
-      }
-    ]
-  });
+// Real matches endpoints using Football API
+app.get('/api/v1/matches/live', async (req, res) => {
+  try {
+    const footballApi = (await import('./services/football-api')).default;
+    
+    if (!footballApi.isConfigured()) {
+      return res.json({
+        success: true,
+        data: [],
+        message: 'Football API not configured - using demo data'
+      });
+    }
+
+    const matches = await footballApi.getLiveMatches();
+    res.json({
+      success: true,
+      data: matches,
+      count: matches.length
+    });
+  } catch (error) {
+    console.error('Error fetching live matches:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch live matches',
+      error: error.message
+    });
+  }
 });
 
-// Demo competitions endpoint
-app.get('/api/v1/competitions', (req, res) => {
-  res.json({
-    success: true,
-    data: [
-      { id: 1, name: 'Premier League', country: 'England' },
-      { id: 2, name: 'La Liga', country: 'Spain' },
-      { id: 3, name: 'Bundesliga', country: 'Germany' }
-    ]
-  });
+app.get('/api/v1/matches/today', async (req, res) => {
+  try {
+    const footballApi = (await import('./services/football-api')).default;
+    
+    if (!footballApi.isConfigured()) {
+      return res.json({
+        success: true,
+        data: [
+          {
+            fixture: { id: 1, date: new Date().toISOString(), status: { short: 'FT' } },
+            teams: { 
+              home: { name: 'Manchester United', logo: '' },
+              away: { name: 'Liverpool', logo: '' }
+            },
+            goals: { home: 2, away: 1 },
+            league: { name: 'Premier League', country: 'England' }
+          }
+        ],
+        message: 'Football API not configured - using demo data'
+      });
+    }
+
+    const matches = await footballApi.getTodayMatches();
+    res.json({
+      success: true,
+      data: matches,
+      count: matches.length
+    });
+  } catch (error) {
+    console.error('Error fetching today matches:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch today matches',
+      error: error.message
+    });
+  }
 });
 
-// Demo teams endpoint
-app.get('/api/v1/teams', (req, res) => {
-  res.json({
-    success: true,
-    data: [
-      { id: 1, name: 'Manchester United', league: 'Premier League' },
-      { id: 2, name: 'Liverpool', league: 'Premier League' },
-      { id: 3, name: 'Arsenal', league: 'Premier League' }
-    ]
-  });
+// Legacy endpoint for backward compatibility
+app.get('/api/v1/matches', async (req, res) => {
+  try {
+    const footballApi = (await import('./services/football-api')).default;
+    
+    if (!footballApi.isConfigured()) {
+      return res.json({
+        success: true,
+        data: [
+          {
+            id: 1,
+            homeTeam: 'Manchester United',
+            awayTeam: 'Liverpool',
+            homeScore: 2,
+            awayScore: 1,
+            status: 'finished',
+            date: new Date().toISOString()
+          },
+          {
+            id: 2,
+            homeTeam: 'Arsenal',
+            awayTeam: 'Chelsea',
+            homeScore: 1,
+            awayScore: 1,
+            status: 'finished',
+            date: new Date().toISOString()
+          }
+        ],
+        message: 'Football API not configured - using demo data'
+      });
+    }
+
+    const matches = await footballApi.getTodayMatches();
+    res.json({
+      success: true,
+      data: matches,
+      count: matches.length
+    });
+  } catch (error) {
+    console.error('Error fetching matches:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch matches',
+      error: error.message
+    });
+  }
+});
+
+// Real competitions endpoint
+app.get('/api/v1/competitions', async (req, res) => {
+  try {
+    const footballApi = (await import('./services/football-api')).default;
+    
+    if (!footballApi.isConfigured()) {
+      return res.json({
+        success: true,
+        data: [
+          { id: 1, name: 'Premier League', country: 'England' },
+          { id: 2, name: 'La Liga', country: 'Spain' },
+          { id: 3, name: 'Bundesliga', country: 'Germany' }
+        ],
+        message: 'Football API not configured - using demo data'
+      });
+    }
+
+    const leagues = await footballApi.getLeagues();
+    res.json({
+      success: true,
+      data: leagues,
+      count: leagues.length
+    });
+  } catch (error) {
+    console.error('Error fetching competitions:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch competitions',
+      error: error.message
+    });
+  }
+});
+
+// Real teams endpoint
+app.get('/api/v1/teams', async (req, res) => {
+  try {
+    const footballApi = (await import('./services/football-api')).default;
+    const { league, season } = req.query;
+    
+    if (!footballApi.isConfigured()) {
+      return res.json({
+        success: true,
+        data: [
+          { id: 1, name: 'Manchester United', league: 'Premier League' },
+          { id: 2, name: 'Liverpool', league: 'Premier League' },
+          { id: 3, name: 'Arsenal', league: 'Premier League' }
+        ],
+        message: 'Football API not configured - using demo data'
+      });
+    }
+
+    const teams = await footballApi.getTeams(
+      league ? parseInt(league as string) : undefined,
+      season ? parseInt(season as string) : undefined
+    );
+    
+    res.json({
+      success: true,
+      data: teams,
+      count: teams.length
+    });
+  } catch (error) {
+    console.error('Error fetching teams:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch teams',
+      error: error.message
+    });
+  }
+});
+
+// Additional Football API endpoints
+
+// Get match details
+app.get('/api/v1/matches/:id', async (req, res) => {
+  try {
+    const footballApi = (await import('./services/football-api')).default;
+    const { id } = req.params;
+    
+    if (!footballApi.isConfigured()) {
+      return res.json({
+        success: true,
+        data: {
+          id: parseInt(id),
+          homeTeam: 'Manchester United',
+          awayTeam: 'Liverpool',
+          homeScore: 2,
+          awayScore: 1,
+          status: 'finished',
+          date: new Date().toISOString()
+        },
+        message: 'Football API not configured - using demo data'
+      });
+    }
+
+    // For match details, we'd need to implement a specific match lookup
+    // For now, return a placeholder response
+    res.json({
+      success: true,
+      data: { message: `Match details for fixture ${id} - implement specific lookup` }
+    });
+  } catch (error) {
+    console.error('Error fetching match details:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch match details',
+      error: error.message
+    });
+  }
+});
+
+// Get match events
+app.get('/api/v1/matches/:id/events', async (req, res) => {
+  try {
+    const footballApi = (await import('./services/football-api')).default;
+    const { id } = req.params;
+    
+    if (!footballApi.isConfigured()) {
+      return res.json({
+        success: true,
+        data: [],
+        message: 'Football API not configured - using demo data'
+      });
+    }
+
+    const events = await footballApi.getMatchEvents(parseInt(id));
+    res.json({
+      success: true,
+      data: events,
+      count: events.length
+    });
+  } catch (error) {
+    console.error('Error fetching match events:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch match events',
+      error: error.message
+    });
+  }
+});
+
+// Get match statistics
+app.get('/api/v1/matches/:id/statistics', async (req, res) => {
+  try {
+    const footballApi = (await import('./services/football-api')).default;
+    const { id } = req.params;
+    
+    if (!footballApi.isConfigured()) {
+      return res.json({
+        success: true,
+        data: [],
+        message: 'Football API not configured - using demo data'
+      });
+    }
+
+    const stats = await footballApi.getMatchStatistics(parseInt(id));
+    res.json({
+      success: true,
+      data: stats,
+      count: stats.length
+    });
+  } catch (error) {
+    console.error('Error fetching match statistics:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch match statistics',
+      error: error.message
+    });
+  }
+});
+
+// Get league standings
+app.get('/api/v1/competitions/:id/standings', async (req, res) => {
+  try {
+    const footballApi = (await import('./services/football-api')).default;
+    const { id } = req.params;
+    const { season } = req.query;
+    
+    if (!footballApi.isConfigured()) {
+      return res.json({
+        success: true,
+        data: [],
+        message: 'Football API not configured - using demo data'
+      });
+    }
+
+    const standings = await footballApi.getStandings(
+      parseInt(id),
+      season ? parseInt(season as string) : new Date().getFullYear()
+    );
+    
+    res.json({
+      success: true,
+      data: standings,
+      count: standings.length
+    });
+  } catch (error) {
+    console.error('Error fetching league standings:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch league standings',
+      error: error.message
+    });
+  }
+});
+
+// API status endpoint
+app.get('/api/v1/football-status', async (req, res) => {
+  try {
+    const footballApi = (await import('./services/football-api')).default;
+    
+    if (!footballApi.isConfigured()) {
+      return res.json({
+        success: true,
+        configured: false,
+        message: 'Football API key not configured'
+      });
+    }
+
+    const status = await footballApi.getApiStatus();
+    res.json({
+      success: true,
+      configured: true,
+      data: status
+    });
+  } catch (error) {
+    console.error('Error fetching API status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch API status',
+      error: error.message
+    });
+  }
 });
 
 // Start server
