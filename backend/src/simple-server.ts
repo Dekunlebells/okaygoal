@@ -93,11 +93,16 @@ app.get('/health', async (req, res) => {
   // Check PostgreSQL
   if (pgPool) {
     try {
-      await pgPool.query('SELECT 1');
+      const client = await pgPool.connect();
+      await client.query('SELECT 1');
+      client.release();
       health.database.postgres = true;
+      console.log('PostgreSQL health check passed');
     } catch (error) {
-      console.log('PostgreSQL check failed:', error);
+      console.log('PostgreSQL check failed:', error.message);
     }
+  } else {
+    console.log('PostgreSQL pool not initialized');
   }
 
   // Check Redis
@@ -161,7 +166,10 @@ app.get('/api/v1/test', (req, res) => {
   res.json({
     success: true,
     message: 'API is working',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV,
+    database_url_exists: !!process.env.DATABASE_URL,
+    redis_url_exists: !!process.env.REDIS_URL
   });
 });
 
