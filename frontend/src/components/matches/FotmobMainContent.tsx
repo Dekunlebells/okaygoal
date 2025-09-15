@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { clsx } from 'clsx';
-import { ChevronLeft, ChevronRight, Filter, MoreVertical, Tv, Star, TrendingUp, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Filter, MoreVertical, Tv, Star, TrendingUp, RefreshCw, Wifi, WifiOff, Trophy } from 'lucide-react';
 import { format, addDays, subDays, isToday, isTomorrow, isYesterday } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { matchesApi } from '@/services/api';
@@ -308,7 +308,6 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
       if (activeTab === 'ongoing') {
         // Get live matches
         const response = await matchesApi.getLiveMatches();
-        console.log('Live matches response:', response.data);
         if (response.data.success) {
           apiMatches = response.data.data || [];
         }
@@ -316,13 +315,11 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
         // Get matches by selected date
         if (isToday) {
           const response = await matchesApi.getTodayMatches();
-          console.log('Today matches response:', response.data);
           if (response.data.success) {
             apiMatches = response.data.data || [];
           }
         } else {
           const response = await matchesApi.getMatchesByDate(dateString);
-          console.log('Matches by date response:', response.data);
           if (response.data.success) {
             apiMatches = response.data.data || [];
           }
@@ -330,7 +327,6 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
       } else if (activeTab === 'ontv') {
         // For "On TV" - get today's matches and filter for major competitions
         const response = await matchesApi.getTodayMatches();
-        console.log('On TV matches response:', response.data);
         if (response.data.success) {
           // Filter for major competitions (Champions League, Premier League, etc.)
           const majorCompetitionIds = [2, 39, 135, 140]; // CL, PL, LaLiga, Championship
@@ -339,8 +335,6 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
           );
         }
       }
-      
-      console.log('API matches received:', apiMatches);
       
       // Convert API matches to display format
       const convertedMatches = apiMatches.map(convertApiMatchToDisplay);
@@ -351,11 +345,9 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
       
       // Use real API data if available, otherwise fall back to demo data
       if (convertedMatches.length > 0) {
-        console.log('Using real API matches:', convertedMatches);
         setMatches(convertedMatches);
         setUsingRealData(true);
       } else {
-        console.log('No real matches found, showing demo data for better UX');
         setMatches(demoMatches);
         setUsingRealData(false);
       }
@@ -402,7 +394,6 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
     
     if (activeTab === 'ongoing') {
       intervalId = setInterval(() => {
-        console.log('Auto-refreshing live matches...');
         fetchMatches();
       }, 30000); // 30 seconds
     }
@@ -416,17 +407,12 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
 
   // Filter and group matches by league
   const groupedMatches = React.useMemo(() => {
-    console.log('Grouping matches - input matches:', matches);
-    console.log('Selected league for filtering:', selectedLeague);
-    
     const groups: { [leagueId: number]: LeagueGroup } = {};
     
     // Filter by selected league if not "All" (0)
     const filteredMatches = selectedLeague === 0 
       ? matches 
       : matches.filter(match => match.league.id === selectedLeague);
-    
-    console.log('Filtered matches after league filter:', filteredMatches);
     
     filteredMatches.forEach(match => {
       const leagueId = match.league.id;
@@ -440,7 +426,6 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
     });
 
     const result = Object.values(groups).sort((a, b) => a.league.name.localeCompare(b.league.name));
-    console.log('Final grouped matches:', result);
     return result;
   }, [matches, selectedLeague]);
 
