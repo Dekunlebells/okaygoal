@@ -32,19 +32,35 @@ let redisClient: any = null;
 
 // Initialize databases if environment variables are available
 if (process.env.DATABASE_URL) {
+  console.log('Initializing PostgreSQL connection...');
   pgPool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    max: 10,
+    connectionTimeoutMillis: 10000,
+    idleTimeoutMillis: 30000
   });
+  
+  // Test connection immediately
+  pgPool.connect()
+    .then(() => {
+      console.log('PostgreSQL connected successfully');
+    })
+    .catch((err) => {
+      console.error('PostgreSQL connection failed:', err.message);
+    });
 }
 
 // Redis connection - try to connect but don't fail if it doesn't work
 if (process.env.REDIS_URL) {
+  console.log('Initializing Redis connection...');
   try {
     redisClient = createClient({
       url: process.env.REDIS_URL
     });
-    redisClient.connect().catch((error) => {
+    redisClient.connect().then(() => {
+      console.log('Redis connected successfully');
+    }).catch((error) => {
       console.log('Redis connection failed, continuing without Redis:', error.message);
       redisClient = null;
     });
