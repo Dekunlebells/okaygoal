@@ -408,7 +408,7 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
                       clickedMatchId === match.fixture.id
                         ? 'scale-95 opacity-80'
                         : isLive(match.fixture.status.short) 
-                          ? 'bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 live-glow' 
+                          ? 'bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800' 
                           : 'hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
                   >
@@ -432,23 +432,13 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
                     <div className="mx-6 text-center">
                       {isLive(match.fixture.status.short) ? (
                         <div className="flex flex-col items-center">
-                          <div className="flex items-center space-x-2 text-lg font-bold relative">
-                            <span className="relative">
-                              <span className="text-gray-900 dark:text-white animate-pulse">
-                                {match.goals.home ?? 0}
-                              </span>
-                              <span className="absolute inset-0 text-red-500 animate-ping opacity-30">
-                                {match.goals.home ?? 0}
-                              </span>
+                          <div className="flex items-center space-x-2 text-lg font-bold">
+                            <span className="text-gray-900 dark:text-white animate-pulse">
+                              {match.goals.home ?? 0}
                             </span>
                             <span className="text-gray-400 animate-pulse">-</span>
-                            <span className="relative">
-                              <span className="text-gray-900 dark:text-white animate-pulse">
-                                {match.goals.away ?? 0}
-                              </span>
-                              <span className="absolute inset-0 text-red-500 animate-ping opacity-30">
-                                {match.goals.away ?? 0}
-                              </span>
+                            <span className="text-gray-900 dark:text-white animate-pulse">
+                              {match.goals.away ?? 0}
                             </span>
                           </div>
                           <div className="flex items-center space-x-1 mt-1">

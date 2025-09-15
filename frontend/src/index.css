@@ -174,19 +174,7 @@
     animation-delay: 200ms;
   }
 
-  /* Live match animations */
-  .live-glow {
-    animation: live-glow 2s ease-in-out infinite alternate;
-  }
-
-  @keyframes live-glow {
-    from {
-      box-shadow: 0 0 5px rgba(239, 68, 68, 0.4);
-    }
-    to {
-      box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), 0 0 30px rgba(239, 68, 68, 0.4);
-    }
-  }
+  /* Live match animations - glow removed */
 
   /* Goal celebration animation */
   .goal-celebration {
