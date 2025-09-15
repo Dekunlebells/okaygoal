@@ -1,5 +1,4 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { logger } from '@/utils/logger';
 
 interface ApiFootballConfig {
   apiKey: string;
@@ -129,7 +128,7 @@ class FootballApiService {
     };
 
     if (!this.config.apiKey) {
-      logger.warn('FOOTBALL_API_KEY not found in environment variables');
+      console.warn('FOOTBALL_API_KEY not found in environment variables');
     }
 
     this.api = axios.create({
@@ -149,11 +148,11 @@ class FootballApiService {
     // Request interceptor
     this.api.interceptors.request.use(
       (config) => {
-        logger.info(`Football API request: ${config.method?.toUpperCase()} ${config.url}`);
+        console.log(`Football API request: ${config.method?.toUpperCase()} ${config.url}`);
         return config;
       },
       (error) => {
-        logger.error('Football API request error:', error);
+        console.error('Football API request error:', error);
         return Promise.reject(error);
       }
     );
@@ -161,11 +160,11 @@ class FootballApiService {
     // Response interceptor
     this.api.interceptors.response.use(
       (response) => {
-        logger.info(`Football API response: ${response.status} ${response.config.url}`);
+        console.log(`Football API response: ${response.status} ${response.config.url}`);
         return response;
       },
       (error) => {
-        logger.error('Football API response error:', {
+        console.error('Football API response error:', {
           url: error.config?.url,
           status: error.response?.status,
           message: error.message,
@@ -183,7 +182,7 @@ class FootballApiService {
       });
       return response.data.response || [];
     } catch (error) {
-      logger.error('Error fetching live matches:', error);
+      console.error('Error fetching live matches:', error);
       throw new Error('Failed to fetch live matches');
     }
   }
@@ -197,7 +196,7 @@ class FootballApiService {
       });
       return response.data.response || [];
     } catch (error) {
-      logger.error('Error fetching today matches:', error);
+      console.error('Error fetching today matches:', error);
       throw new Error('Failed to fetch today matches');
     }
   }
@@ -210,7 +209,7 @@ class FootballApiService {
       });
       return response.data.response || [];
     } catch (error) {
-      logger.error(`Error fetching matches for ${date}:`, error);
+      console.error(`Error fetching matches for ${date}:`, error);
       throw new Error(`Failed to fetch matches for ${date}`);
     }
   }
@@ -223,7 +222,7 @@ class FootballApiService {
       });
       return response.data.response || [];
     } catch (error) {
-      logger.error(`Error fetching matches for league ${leagueId}:`, error);
+      console.error(`Error fetching matches for league ${leagueId}:`, error);
       throw new Error(`Failed to fetch matches for league ${leagueId}`);
     }
   }
@@ -236,7 +235,7 @@ class FootballApiService {
       });
       return response.data.response || [];
     } catch (error) {
-      logger.error(`Error fetching matches for team ${teamId}:`, error);
+      console.error(`Error fetching matches for team ${teamId}:`, error);
       throw new Error(`Failed to fetch matches for team ${teamId}`);
     }
   }
@@ -247,7 +246,7 @@ class FootballApiService {
       const response: AxiosResponse = await this.api.get('/leagues');
       return response.data.response || [];
     } catch (error) {
-      logger.error('Error fetching leagues:', error);
+      console.error('Error fetching leagues:', error);
       throw new Error('Failed to fetch leagues');
     }
   }
@@ -262,7 +261,7 @@ class FootballApiService {
       const response: AxiosResponse = await this.api.get('/teams', { params });
       return response.data.response || [];
     } catch (error) {
-      logger.error('Error fetching teams:', error);
+      console.error('Error fetching teams:', error);
       throw new Error('Failed to fetch teams');
     }
   }
@@ -275,7 +274,7 @@ class FootballApiService {
       });
       return response.data.response[0] || null;
     } catch (error) {
-      logger.error(`Error fetching team ${teamId}:`, error);
+      console.error(`Error fetching team ${teamId}:`, error);
       throw new Error(`Failed to fetch team ${teamId}`);
     }
   }
@@ -288,7 +287,7 @@ class FootballApiService {
       });
       return response.data.response || [];
     } catch (error) {
-      logger.error(`Error fetching standings for league ${leagueId}:`, error);
+      console.error(`Error fetching standings for league ${leagueId}:`, error);
       throw new Error(`Failed to fetch standings for league ${leagueId}`);
     }
   }
@@ -301,7 +300,7 @@ class FootballApiService {
       });
       return response.data.response || [];
     } catch (error) {
-      logger.error(`Error fetching statistics for fixture ${fixtureId}:`, error);
+      console.error(`Error fetching statistics for fixture ${fixtureId}:`, error);
       throw new Error(`Failed to fetch statistics for fixture ${fixtureId}`);
     }
   }
@@ -314,7 +313,7 @@ class FootballApiService {
       });
       return response.data.response || [];
     } catch (error) {
-      logger.error(`Error fetching events for fixture ${fixtureId}:`, error);
+      console.error(`Error fetching events for fixture ${fixtureId}:`, error);
       throw new Error(`Failed to fetch events for fixture ${fixtureId}`);
     }
   }
@@ -325,7 +324,7 @@ class FootballApiService {
       const response: AxiosResponse = await this.api.get('/status');
       return response.data.response;
     } catch (error) {
-      logger.error('Error fetching API status:', error);
+      console.error('Error fetching API status:', error);
       throw new Error('Failed to fetch API status');
     }
   }
