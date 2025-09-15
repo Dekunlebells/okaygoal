@@ -11,7 +11,7 @@ import { Layout } from '@/components/layout/Layout';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { RegisterForm } from '@/components/auth/RegisterForm';
 import { HomePage } from '@/components/pages/HomePage';
-import { MatchDetailsPage } from '@/components/matches/MatchDetailsPage';
+import { SimpleMatchDetails } from '@/components/matches/SimpleMatchDetails';
 import { TeamProfilePage } from '@/components/teams/TeamProfilePage';
 import { PlayerProfilePage } from '@/components/players/PlayerProfilePage';
 import { UserPreferencesPage } from '@/components/user/UserPreferencesPage';
@@ -188,9 +188,7 @@ function App() {
           path="/matches/:id"
           element={
             <ProtectedRoute>
-              <Layout>
-                <MatchDetailsPage />
-              </Layout>
+              <SimpleMatchDetails />
             </ProtectedRoute>
           }
         />

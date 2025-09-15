@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { clsx } from 'clsx';
 import { ChevronLeft, ChevronRight, Filter, MoreVertical, Tv } from 'lucide-react';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 import { matchesApi } from '@/services/api';
 
 interface FotmobMatch {
@@ -56,6 +57,7 @@ interface FotmobMainContentProps {
 }
 
 export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLeague = 0 }) => {
+  const navigate = useNavigate();
   // Demo matches for when API returns empty
   const demoMatches: FotmobMatch[] = [
     {
@@ -261,6 +263,10 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
     return status === 'FT' || status === 'AET' || status === 'PEN';
   };
 
+  const handleMatchClick = (matchId: number) => {
+    navigate(`/matches/${matchId}`);
+  };
+
   return (
     <div className="p-6">
       {/* Date Navigation */}
@@ -392,6 +398,7 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
                 {group.matches.map((match) => (
                   <div
                     key={match.fixture.id}
+                    onClick={() => handleMatchClick(match.fixture.id)}
                     className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors cursor-pointer"
                   >
                     {/* Home team */}
