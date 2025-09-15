@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Settings, Menu, X, Trophy, Users, TrendingUp } from 'lucide-react';
+import { Search, Settings, Menu, X, Trophy, TrendingUp } from 'lucide-react';
 
 interface FotmobLayoutProps {
   children: React.ReactNode;
