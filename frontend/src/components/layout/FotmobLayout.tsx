@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Settings, Menu, X } from 'lucide-react';
+import { Search, Settings, Menu, X, Trophy, Users, TrendingUp } from 'lucide-react';
 
 interface FotmobLayoutProps {
   children: React.ReactNode;
@@ -10,16 +10,48 @@ interface FotmobLayoutProps {
 }
 
 const topLeagues = [
-  { id: 39, name: 'Premier League', logo: '⚽', country: 'England' },
-  { id: 140, name: 'Championship', logo: '⚽', country: 'England' },
-  { id: 2, name: 'Champions League', logo: '⚽', country: 'Europe' },
-  { id: 146, name: 'FA Cup', logo: '⚽', country: 'England' },
-  { id: 3, name: 'Europa League', logo: '⚽', country: 'Europe' },
-  { id: 5, name: 'FIFA World Cup', logo: '⚽', country: 'International' },
-  { id: 144, name: 'League One', logo: '⚽', country: 'England' },
-  { id: 135, name: 'LaLiga', logo: '⚽', country: 'Spain' },
-  { id: 145, name: 'League Two', logo: '⚽', country: 'England' },
-  { id: 143, name: 'EFL Cup', logo: '⚽', country: 'England' },
+  { 
+    id: 39, 
+    name: 'Premier League', 
+    logo: 'https://media.api-sports.io/football/leagues/39.png', 
+    country: 'England',
+    matchCount: 6
+  },
+  { 
+    id: 135, 
+    name: 'LaLiga', 
+    logo: 'https://media.api-sports.io/football/leagues/135.png', 
+    country: 'Spain',
+    matchCount: 3
+  },
+  { 
+    id: 2, 
+    name: 'Champions League', 
+    logo: 'https://media.api-sports.io/football/leagues/2.png', 
+    country: 'Europe',
+    matchCount: 4
+  },
+  { 
+    id: 140, 
+    name: 'Championship', 
+    logo: 'https://media.api-sports.io/football/leagues/140.png', 
+    country: 'England',
+    matchCount: 2
+  },
+  { 
+    id: 3, 
+    name: 'Europa League', 
+    logo: 'https://media.api-sports.io/football/leagues/3.png', 
+    country: 'Europe',
+    matchCount: 1
+  },
+  { 
+    id: 146, 
+    name: 'FA Cup', 
+    logo: 'https://media.api-sports.io/football/leagues/146.png', 
+    country: 'England',
+    matchCount: 0
+  }
 ];
 
 const newsItems = [
@@ -104,42 +136,96 @@ export const FotmobLayout: React.FC<FotmobLayoutProps> = ({
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
           <div className="h-full overflow-y-auto py-6 px-4">
+            {/* Quick Stats */}
+            <div className="mb-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+                <TrendingUp className="w-4 h-4 mr-2 text-blue-500" />
+                Today's Overview
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="text-center">
+                  <div className="text-lg font-bold text-gray-900 dark:text-white">12</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">Live</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-bold text-gray-900 dark:text-white">45</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">Today</div>
+                </div>
+              </div>
+            </div>
+
             {/* Top leagues section */}
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Top leagues
-              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                  <Trophy className="w-4 h-4 mr-2 text-yellow-500" />
+                  Leagues
+                </h3>
+                <button className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
+                  View all
+                </button>
+              </div>
+              
+              {/* All leagues option */}
+              <button 
+                onClick={() => onLeagueChange?.(0)}
+                className={`w-full flex items-center justify-between px-3 py-2.5 mb-3 text-sm font-medium rounded-lg transition-all ${
+                  selectedLeague === 0
+                    ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-200 shadow-sm'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                <div className="flex items-center">
+                  <div className="w-6 h-6 mr-3 bg-gray-200 dark:bg-gray-600 rounded-sm flex items-center justify-center">
+                    <span className="text-xs">🌐</span>
+                  </div>
+                  <span>All Leagues</span>
+                </div>
+                <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-600 px-2 py-1 rounded-full">
+                  All
+                </span>
+              </button>
+
               <nav className="space-y-1">
                 {topLeagues.map((league) => (
                   <button
                     key={league.id}
                     onClick={() => onLeagueChange?.(league.id)}
-                    className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    className={`w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-all group ${
                       selectedLeague === league.id
-                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-200'
+                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-200 shadow-sm'
                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
                     }`}
                   >
-                    <span className="mr-3 text-base">{league.logo}</span>
-                    <span className="flex-1 text-left">{league.name}</span>
+                    <div className="flex items-center min-w-0 flex-1">
+                      <img 
+                        src={league.logo} 
+                        alt={league.name}
+                        className="w-6 h-6 mr-3 object-contain flex-shrink-0"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = `https://ui-avatars.com/api/?name=${league.name}&size=24&background=e5e7eb&color=6b7280`;
+                        }}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium truncate">{league.name}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{league.country}</div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      {league.matchCount > 0 && (
+                        <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-600 px-2 py-1 rounded-full">
+                          {league.matchCount}
+                        </span>
+                      )}
+                      {selectedLeague === league.id && (
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      )}
+                    </div>
                   </button>
                 ))}
               </nav>
-
-              {/* All leagues dropdown */}
-              <button 
-                onClick={() => onLeagueChange?.(0)}
-                className={`w-full flex items-center px-3 py-2 mt-4 text-sm font-medium rounded-lg transition-colors ${
-                  selectedLeague === 0
-                    ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-200'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
-                }`}
-              >
-                <span className="flex-1 text-left">All leagues</span>
-                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
             </div>
           </div>
         </aside>

@@ -115,6 +115,10 @@ export const SimpleMatchDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
+
+  const handleTeamClick = (teamId: number) => {
+    navigate(`/teams/${teamId}`);
+  };
   
   const match = demoMatches.find(m => m.fixture.id === parseInt(id || '0'));
   
