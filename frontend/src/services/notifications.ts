@@ -33,12 +33,15 @@ class NotificationService {
     }
 
     try {
-      // Register service worker
-      this.registration = await navigator.serviceWorker.register('/sw.js');
-      console.log('Service Worker registered:', this.registration);
+      // Temporarily disable service worker registration until sw.js is created
+      console.log('Service Worker registration disabled - sw.js not yet implemented');
+      
+      // Register service worker (disabled for now)
+      // this.registration = await navigator.serviceWorker.register('/sw.js');
+      // console.log('Service Worker registered:', this.registration);
 
       // Listen for messages from service worker
-      navigator.serviceWorker.addEventListener('message', this.handleServiceWorkerMessage);
+      // navigator.serviceWorker.addEventListener('message', this.handleServiceWorkerMessage);
 
       return true;
     } catch (error) {

@@ -124,12 +124,13 @@ function App() {
   // Connect WebSocket and initialize notifications when authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      const token = localStorage.getItem('okaygoal-token');
-      if (token) {
-        connectWebSocket(token);
-      }
+      // Temporarily disable WebSocket connection until backend WebSocket server is implemented
+      // const token = localStorage.getItem('okaygoal-token');
+      // if (token) {
+      //   connectWebSocket(token);
+      // }
       
-      // Initialize notification service
+      // Initialize notification service (but disable WebSocket features)
       notificationService.initialize();
     }
   }, [isAuthenticated]);
