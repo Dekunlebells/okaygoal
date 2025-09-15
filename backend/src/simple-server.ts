@@ -99,6 +99,96 @@ app.get('/', (req, res) => {
   });
 });
 
+// Demo auth endpoints
+app.post('/api/v1/auth/login', (req, res) => {
+  const { email, password } = req.body;
+  
+  // Demo account login
+  if (email === 'demo@okaygoal.com' && password === 'demo123456') {
+    res.json({
+      success: true,
+      message: 'Login successful',
+      token: 'demo-jwt-token-12345',
+      user: {
+        id: 1,
+        name: 'Demo User',
+        email: 'demo@okaygoal.com',
+        role: 'user'
+      }
+    });
+  } else {
+    res.status(401).json({
+      success: false,
+      message: 'Invalid credentials'
+    });
+  }
+});
+
+app.post('/api/v1/auth/register', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Registration successful',
+    token: 'demo-jwt-token-12345',
+    user: {
+      id: 2,
+      name: req.body.name || 'New User',
+      email: req.body.email,
+      role: 'user'
+    }
+  });
+});
+
+// Demo matches endpoint
+app.get('/api/v1/matches', (req, res) => {
+  res.json({
+    success: true,
+    data: [
+      {
+        id: 1,
+        homeTeam: 'Manchester United',
+        awayTeam: 'Liverpool',
+        homeScore: 2,
+        awayScore: 1,
+        status: 'finished',
+        date: new Date().toISOString()
+      },
+      {
+        id: 2,
+        homeTeam: 'Arsenal',
+        awayTeam: 'Chelsea',
+        homeScore: 1,
+        awayScore: 1,
+        status: 'finished',
+        date: new Date().toISOString()
+      }
+    ]
+  });
+});
+
+// Demo competitions endpoint
+app.get('/api/v1/competitions', (req, res) => {
+  res.json({
+    success: true,
+    data: [
+      { id: 1, name: 'Premier League', country: 'England' },
+      { id: 2, name: 'La Liga', country: 'Spain' },
+      { id: 3, name: 'Bundesliga', country: 'Germany' }
+    ]
+  });
+});
+
+// Demo teams endpoint
+app.get('/api/v1/teams', (req, res) => {
+  res.json({
+    success: true,
+    data: [
+      { id: 1, name: 'Manchester United', league: 'Premier League' },
+      { id: 2, name: 'Liverpool', league: 'Premier League' },
+      { id: 3, name: 'Arsenal', league: 'Premier League' }
+    ]
+  });
+});
+
 // Start server
 app.listen(PORT, HOST, () => {
   console.log(`Server running on ${HOST}:${PORT}`);
