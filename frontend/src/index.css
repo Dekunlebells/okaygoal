@@ -149,6 +149,14 @@
 
 /* Utility styles */
 @layer utilities {
+  /* Line clamp utility */
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
   /* Animation delays */
   .delay-75 {
     animation-delay: 75ms;
