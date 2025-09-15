@@ -12,8 +12,11 @@ import {
 } from '@/types';
 
 // Create axios instance
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://okaygoal-production.up.railway.app/api/v1';
+console.log('API Base URL:', API_BASE_URL);
+
 const api: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://okaygoal-production.up.railway.app/api/v1',
+  baseURL: API_BASE_URL,
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -23,6 +26,7 @@ const api: AxiosInstance = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
+    console.log('Making request to:', config.baseURL + config.url);
     const token = localStorage.getItem('okaygoal-token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
