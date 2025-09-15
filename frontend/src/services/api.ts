@@ -13,7 +13,7 @@ import {
 
 // Create axios instance
 const api: AxiosInstance = axios.create({
-  baseURL: '/api/v1',
+  baseURL: import.meta.env.VITE_API_URL || 'https://okaygoal-production.up.railway.app/api/v1',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -46,7 +46,7 @@ api.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('okaygoal-refresh-token');
         if (refreshToken) {
-          const response = await axios.post('/api/v1/auth/refresh', {
+          const response = await axios.post(`${import.meta.env.VITE_API_URL || 'https://okaygoal-production.up.railway.app/api/v1'}/auth/refresh`, {
             refresh_token: refreshToken,
           });
 
