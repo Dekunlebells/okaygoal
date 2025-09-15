@@ -10,6 +10,19 @@ const app = express();
 const PORT = parseInt(process.env.PORT || '3001', 10);
 const HOST = process.env.HOST || '0.0.0.0';
 
+// CORS middleware
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://okaygoal-eight.vercel.app');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
 // Basic middleware
 app.use(express.json());
 
@@ -101,10 +114,12 @@ app.get('/', (req, res) => {
 
 // Demo auth endpoints
 app.post('/api/v1/auth/login', (req, res) => {
+  console.log('Login request received:', req.body);
   const { email, password } = req.body;
   
   // Demo account login
   if (email === 'demo@okaygoal.com' && password === 'demo123456') {
+    console.log('Demo login successful');
     res.json({
       success: true,
       message: 'Login successful',
@@ -117,11 +132,21 @@ app.post('/api/v1/auth/login', (req, res) => {
       }
     });
   } else {
+    console.log('Invalid credentials:', email);
     res.status(401).json({
       success: false,
       message: 'Invalid credentials'
     });
   }
+});
+
+// Test endpoint to verify API is working
+app.get('/api/v1/test', (req, res) => {
+  res.json({
+    success: true,
+    message: 'API is working',
+    timestamp: new Date().toISOString()
+  });
 });
 
 app.post('/api/v1/auth/register', (req, res) => {
