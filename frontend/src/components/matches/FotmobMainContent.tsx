@@ -188,8 +188,11 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
       // This provides a better user experience while the real data loads or when no matches exist
       if (apiMatches.length === 0) {
         console.log('No real matches found, showing demo data for better UX');
+        console.log('Demo matches to set:', demoMatches);
         setMatches(demoMatches);
+        console.log('Demo matches set - should trigger re-render');
       } else {
+        console.log('Using real API matches:', apiMatches);
         setMatches(apiMatches);
       }
       
@@ -209,12 +212,17 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
 
   // Filter and group matches by league
   const groupedMatches = React.useMemo(() => {
+    console.log('Grouping matches - input matches:', matches);
+    console.log('Selected league for filtering:', selectedLeague);
+    
     const groups: { [leagueId: number]: LeagueGroup } = {};
     
     // Filter by selected league if not "All" (0)
     const filteredMatches = selectedLeague === 0 
       ? matches 
       : matches.filter(match => match.league.id === selectedLeague);
+    
+    console.log('Filtered matches after league filter:', filteredMatches);
     
     filteredMatches.forEach(match => {
       const leagueId = match.league.id;
@@ -227,14 +235,19 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
       groups[leagueId].matches.push(match);
     });
 
-    return Object.values(groups).sort((a, b) => a.league.name.localeCompare(b.league.name));
+    const result = Object.values(groups).sort((a, b) => a.league.name.localeCompare(b.league.name));
+    console.log('Final grouped matches:', result);
+    return result;
   }, [matches, selectedLeague]);
 
   // Debug logging
   console.log('Demo matches:', demoMatches);
   console.log('Current matches:', matches);
+  console.log('Current matches length:', matches.length);
   console.log('Grouped matches:', groupedMatches);
+  console.log('Grouped matches length:', groupedMatches.length);
   console.log('Loading:', loading);
+  console.log('Selected league:', selectedLeague);
 
   const formatMatchTime = (dateString: string) => {
     return format(new Date(dateString), 'h:mm a').replace(' ', '');
