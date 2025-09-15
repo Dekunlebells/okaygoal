@@ -264,7 +264,8 @@ class MonitoringService {
     }
 
     // Example integration with custom analytics endpoint
-    fetch(`${import.meta.env.VITE_API_URL || 'https://okaygoal-production.up.railway.app/api/v1'}/analytics`, {
+    const API_URL = import.meta.env.VITE_API_URL || 'https://okaygoal-production.up.railway.app/api/v1';
+    fetch(`${API_URL}/analytics`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -289,7 +290,8 @@ class MonitoringService {
     }
 
     // Example integration with custom error endpoint
-    fetch(`${import.meta.env.VITE_API_URL || 'https://okaygoal-production.up.railway.app/api/v1'}/errors`, {
+    const API_URL = import.meta.env.VITE_API_URL || 'https://okaygoal-production.up.railway.app/api/v1';
+    fetch(`${API_URL}/errors`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

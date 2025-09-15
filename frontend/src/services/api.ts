@@ -12,8 +12,15 @@ import {
 } from '@/types';
 
 // Create axios instance
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://okaygoal-production.up.railway.app/api/v1';
-console.log('API Base URL:', API_BASE_URL);
+let API_BASE_URL = import.meta.env.VITE_API_URL || 'https://okaygoal-production.up.railway.app/api/v1';
+
+// Ensure API_BASE_URL always ends with /api/v1
+if (!API_BASE_URL.includes('/api/v1')) {
+  API_BASE_URL = API_BASE_URL.replace(/\/$/, '') + '/api/v1';
+}
+
+console.log('Environment API URL:', import.meta.env.VITE_API_URL);
+console.log('Final API Base URL:', API_BASE_URL);
 
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -50,7 +57,7 @@ api.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('okaygoal-refresh-token');
         if (refreshToken) {
-          const response = await axios.post(`${import.meta.env.VITE_API_URL || 'https://okaygoal-production.up.railway.app/api/v1'}/auth/refresh`, {
+          const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
             refresh_token: refreshToken,
           });
 
