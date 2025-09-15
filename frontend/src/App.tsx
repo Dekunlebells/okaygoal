@@ -10,8 +10,7 @@ import { selectTheme, setTheme } from '@/store/slices/appSlice';
 import { Layout } from '@/components/layout/Layout';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { RegisterForm } from '@/components/auth/RegisterForm';
-import { FotmobLayout } from '@/components/layout/FotmobLayout';
-import { FotmobMainContent } from '@/components/matches/FotmobMainContent';
+import { HomePage } from '@/components/pages/HomePage';
 import { MatchDetailsPage } from '@/components/matches/MatchDetailsPage';
 import { TeamProfilePage } from '@/components/teams/TeamProfilePage';
 import { PlayerProfilePage } from '@/components/players/PlayerProfilePage';
@@ -170,9 +169,7 @@ function App() {
           path="/"
           element={
             <ProtectedRoute>
-              <FotmobLayout>
-                <FotmobMainContent />
-              </FotmobLayout>
+              <HomePage />
             </ProtectedRoute>
           }
         />
@@ -181,9 +178,7 @@ function App() {
           path="/matches"
           element={
             <ProtectedRoute>
-              <FotmobLayout>
-                <FotmobMainContent />
-              </FotmobLayout>
+              <HomePage />
             </ProtectedRoute>
           }
         />

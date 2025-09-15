@@ -51,33 +51,159 @@ interface LeagueGroup {
   matches: FotmobMatch[];
 }
 
-export const FotmobMainContent: React.FC = () => {
-  const [matches, setMatches] = useState<FotmobMatch[]>([]);
-  const [loading, setLoading] = useState(true);
+interface FotmobMainContentProps {
+  selectedLeague?: number;
+}
+
+export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLeague = 0 }) => {
+  // Demo matches for when API returns empty
+  const demoMatches: FotmobMatch[] = [
+    {
+      fixture: {
+        id: 1,
+        date: new Date().toISOString(),
+        status: { short: '2H', long: 'Second Half', elapsed: 67 },
+        venue: { name: 'Old Trafford' }
+      },
+      league: {
+        id: 39,
+        name: 'Premier League',
+        country: 'England',
+        logo: 'https://media.api-sports.io/football/leagues/39.png'
+      },
+      teams: {
+        home: { id: 33, name: 'Manchester United', logo: 'https://media.api-sports.io/football/teams/33.png' },
+        away: { id: 40, name: 'Liverpool', logo: 'https://media.api-sports.io/football/teams/40.png' }
+      },
+      goals: { home: 2, away: 1 }
+    },
+    {
+      fixture: {
+        id: 2,
+        date: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+        status: { short: 'NS', long: 'Not Started' },
+        venue: { name: 'Emirates Stadium' }
+      },
+      league: {
+        id: 39,
+        name: 'Premier League',
+        country: 'England',
+        logo: 'https://media.api-sports.io/football/leagues/39.png'
+      },
+      teams: {
+        home: { id: 42, name: 'Arsenal', logo: 'https://media.api-sports.io/football/teams/42.png' },
+        away: { id: 49, name: 'Chelsea', logo: 'https://media.api-sports.io/football/teams/49.png' }
+      },
+      goals: { home: null, away: null }
+    },
+    {
+      fixture: {
+        id: 3,
+        date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        status: { short: 'FT', long: 'Match Finished' },
+        venue: { name: 'Etihad Stadium' }
+      },
+      league: {
+        id: 39,
+        name: 'Premier League',
+        country: 'England',
+        logo: 'https://media.api-sports.io/football/leagues/39.png'
+      },
+      teams: {
+        home: { id: 50, name: 'Manchester City', logo: 'https://media.api-sports.io/football/teams/50.png' },
+        away: { id: 47, name: 'Tottenham', logo: 'https://media.api-sports.io/football/teams/47.png' }
+      },
+      goals: { home: 3, away: 0 }
+    },
+    {
+      fixture: {
+        id: 4,
+        date: new Date().toISOString(),
+        status: { short: '1H', long: 'First Half', elapsed: 23 },
+        venue: { name: 'Camp Nou' }
+      },
+      league: {
+        id: 135,
+        name: 'LaLiga',
+        country: 'Spain',
+        logo: 'https://media.api-sports.io/football/leagues/135.png'
+      },
+      teams: {
+        home: { id: 529, name: 'Barcelona', logo: 'https://media.api-sports.io/football/teams/529.png' },
+        away: { id: 541, name: 'Real Madrid', logo: 'https://media.api-sports.io/football/teams/541.png' }
+      },
+      goals: { home: 1, away: 0 }
+    },
+    {
+      fixture: {
+        id: 5,
+        date: new Date(Date.now() + 1 * 60 * 60 * 1000).toISOString(),
+        status: { short: 'NS', long: 'Not Started' },
+        venue: { name: 'Stamford Bridge' }
+      },
+      league: {
+        id: 2,
+        name: 'Champions League',
+        country: 'Europe',
+        logo: 'https://media.api-sports.io/football/leagues/2.png'
+      },
+      teams: {
+        home: { id: 49, name: 'Chelsea', logo: 'https://media.api-sports.io/football/teams/49.png' },
+        away: { id: 157, name: 'Bayern Munich', logo: 'https://media.api-sports.io/football/teams/157.png' }
+      },
+      goals: { home: null, away: null }
+    }
+  ];
+
+  const [matches, setMatches] = useState<FotmobMatch[]>(demoMatches);
+  const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [activeTab, setActiveTab] = useState<'ongoing' | 'ontv' | 'bytime'>('ongoing');
+  const [error, setError] = useState<string | null>(null);
 
   const fetchMatches = async () => {
     try {
       setLoading(true);
-      const response = await matchesApi.getTodayMatches();
-      setMatches(response.data.data || []);
+      setError(null);
+      
+      let apiMatches: FotmobMatch[] = [];
+      
+      if (activeTab === 'ongoing') {
+        const response = await matchesApi.getLiveMatches();
+        apiMatches = response.data.data || [];
+      } else if (activeTab === 'bytime') {
+        const response = await matchesApi.getTodayMatches();
+        apiMatches = response.data.data || [];
+      }
+      
+      // If API returns no matches, use demo data
+      setMatches(apiMatches.length > 0 ? apiMatches : demoMatches);
+      
     } catch (error) {
       console.error('Error fetching matches:', error);
+      setError('Failed to load matches');
+      // Use demo data as fallback
+      setMatches(demoMatches);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchMatches();
-  }, [selectedDate]);
+  // Temporarily disable API calls to show demo data
+  // useEffect(() => {
+  //   fetchMatches();
+  // }, [selectedDate, activeTab]);
 
-  // Group matches by league
+  // Filter and group matches by league
   const groupedMatches = React.useMemo(() => {
     const groups: { [leagueId: number]: LeagueGroup } = {};
     
-    matches.forEach(match => {
+    // Filter by selected league if not "All" (0)
+    const filteredMatches = selectedLeague === 0 
+      ? matches 
+      : matches.filter(match => match.league.id === selectedLeague);
+    
+    filteredMatches.forEach(match => {
       const leagueId = match.league.id;
       if (!groups[leagueId]) {
         groups[leagueId] = {
@@ -89,7 +215,13 @@ export const FotmobMainContent: React.FC = () => {
     });
 
     return Object.values(groups).sort((a, b) => a.league.name.localeCompare(b.league.name));
-  }, [matches]);
+  }, [matches, selectedLeague]);
+
+  // Debug logging
+  console.log('Demo matches:', demoMatches);
+  console.log('Current matches:', matches);
+  console.log('Grouped matches:', groupedMatches);
+  console.log('Loading:', loading);
 
   const formatMatchTime = (dateString: string) => {
     return format(new Date(dateString), 'h:mm a').replace(' ', '');

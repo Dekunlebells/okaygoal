@@ -3,6 +3,10 @@ import { Search, Settings, Menu, X } from 'lucide-react';
 
 interface FotmobLayoutProps {
   children: React.ReactNode;
+  selectedLeague?: number;
+  onLeagueChange?: (leagueId: number) => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
 }
 
 const topLeagues = [
@@ -33,9 +37,14 @@ const newsItems = [
   }
 ];
 
-export const FotmobLayout: React.FC<FotmobLayoutProps> = ({ children }) => {
+export const FotmobLayout: React.FC<FotmobLayoutProps> = ({ 
+  children, 
+  selectedLeague = 0, 
+  onLeagueChange,
+  searchQuery = '',
+  onSearchChange
+}) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
@@ -66,7 +75,7 @@ export const FotmobLayout: React.FC<FotmobLayoutProps> = ({ children }) => {
                   type="text"
                   placeholder="Search"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => onSearchChange?.(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-700 border border-transparent rounded-full text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -104,7 +113,12 @@ export const FotmobLayout: React.FC<FotmobLayoutProps> = ({ children }) => {
                 {topLeagues.map((league) => (
                   <button
                     key={league.id}
-                    className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors"
+                    onClick={() => onLeagueChange?.(league.id)}
+                    className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      selectedLeague === league.id
+                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-200'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                    }`}
                   >
                     <span className="mr-3 text-base">{league.logo}</span>
                     <span className="flex-1 text-left">{league.name}</span>
@@ -113,7 +127,14 @@ export const FotmobLayout: React.FC<FotmobLayoutProps> = ({ children }) => {
               </nav>
 
               {/* All leagues dropdown */}
-              <button className="w-full flex items-center px-3 py-2 mt-4 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors">
+              <button 
+                onClick={() => onLeagueChange?.(0)}
+                className={`w-full flex items-center px-3 py-2 mt-4 text-sm font-medium rounded-lg transition-colors ${
+                  selectedLeague === 0
+                    ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-200'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
                 <span className="flex-1 text-left">All leagues</span>
                 <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
