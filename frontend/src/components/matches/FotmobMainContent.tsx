@@ -176,12 +176,22 @@ export const FotmobMainContent: React.FC<FotmobMainContentProps> = ({ selectedLe
         const response = await matchesApi.getTodayMatches();
         console.log('Today matches response:', response.data);
         apiMatches = response.data.data || [];
+      } else if (activeTab === 'ontv') {
+        // For now, show demo data for "On TV" tab since backend doesn't have this endpoint
+        console.log('On TV matches: Using demo data');
+        apiMatches = [];
       }
       
       console.log('API matches received:', apiMatches);
       
-      // Use real API data, fall back to demo data only if API fails completely
-      setMatches(apiMatches);
+      // Use real API data, but show demo data if no matches are available
+      // This provides a better user experience while the real data loads or when no matches exist
+      if (apiMatches.length === 0) {
+        console.log('No real matches found, showing demo data for better UX');
+        setMatches(demoMatches);
+      } else {
+        setMatches(apiMatches);
+      }
       
     } catch (error) {
       console.error('Error fetching matches:', error);
