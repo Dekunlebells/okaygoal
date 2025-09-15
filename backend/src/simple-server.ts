@@ -33,41 +33,79 @@ let redisClient: any = null;
 // Initialize databases if environment variables are available
 if (process.env.DATABASE_URL) {
   console.log('Initializing PostgreSQL connection...');
+  console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
+  
   pgPool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-    max: 10,
-    connectionTimeoutMillis: 10000,
-    idleTimeoutMillis: 30000
+    max: 5,
+    connectionTimeoutMillis: 15000,
+    idleTimeoutMillis: 30000,
+    allowExitOnIdle: true
   });
   
-  // Test connection immediately
-  pgPool.connect()
-    .then(() => {
-      console.log('PostgreSQL connected successfully');
-    })
-    .catch((err) => {
-      console.error('PostgreSQL connection failed:', err.message);
-    });
+  // Test connection with retry logic
+  const testPostgresConnection = async () => {
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        const client = await pgPool.connect();
+        await client.query('SELECT NOW()');
+        client.release();
+        console.log('PostgreSQL connected successfully');
+        return;
+      } catch (err) {
+        console.error(`PostgreSQL connection failed (${retries} retries left):`, err.message);
+        console.error('Full error:', err);
+        retries--;
+        if (retries > 0) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
+    }
+    console.error('PostgreSQL: All connection attempts failed');
+  };
+  
+  testPostgresConnection();
 }
 
 // Redis connection - try to connect but don't fail if it doesn't work
 if (process.env.REDIS_URL) {
   console.log('Initializing Redis connection...');
-  try {
-    redisClient = createClient({
-      url: process.env.REDIS_URL
-    });
-    redisClient.connect().then(() => {
-      console.log('Redis connected successfully');
-    }).catch((error) => {
-      console.log('Redis connection failed, continuing without Redis:', error.message);
-      redisClient = null;
-    });
-  } catch (error) {
-    console.log('Redis initialization failed, continuing without Redis:', error);
-    redisClient = null;
-  }
+  console.log('REDIS_URL exists:', !!process.env.REDIS_URL);
+  
+  const connectRedis = async () => {
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        redisClient = createClient({
+          url: process.env.REDIS_URL,
+          socket: {
+            connectTimeout: 15000,
+            reconnectStrategy: (retries) => Math.min(retries * 50, 500)
+          }
+        });
+        
+        await redisClient.connect();
+        await redisClient.ping();
+        console.log('Redis connected successfully');
+        return;
+      } catch (error) {
+        console.error(`Redis connection failed (${retries} retries left):`, error.message);
+        console.error('Full Redis error:', error);
+        redisClient = null;
+        retries--;
+        if (retries > 0) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
+    }
+    console.error('Redis: All connection attempts failed, continuing without Redis');
+  };
+  
+  connectRedis();
+} else {
+  console.log('No REDIS_URL found, skipping Redis connection');
 }
 
 // Health check endpoint with database status
@@ -99,10 +137,12 @@ app.get('/health', async (req, res) => {
       health.database.postgres = true;
       console.log('PostgreSQL health check passed');
     } catch (error) {
-      console.log('PostgreSQL check failed:', error.message);
+      console.log('PostgreSQL health check failed:', error.message);
+      console.log('PostgreSQL pool totalCount:', pgPool.totalCount);
+      console.log('PostgreSQL pool idleCount:', pgPool.idleCount);
     }
   } else {
-    console.log('PostgreSQL pool not initialized');
+    console.log('PostgreSQL pool not initialized - DATABASE_URL missing or invalid');
   }
 
   // Check Redis
@@ -111,14 +151,15 @@ app.get('/health', async (req, res) => {
       if (redisClient.isOpen) {
         await redisClient.ping();
         health.database.redis = true;
+        console.log('Redis health check passed');
       } else {
-        console.log('Redis client not connected');
+        console.log('Redis client exists but not connected');
       }
     } catch (error) {
-      console.log('Redis check failed:', error);
+      console.log('Redis health check failed:', error.message);
     }
   } else {
-    console.log('Redis client not initialized');
+    console.log('Redis client not initialized - REDIS_URL missing or connection failed');
   }
 
   res.status(200).json(health);
