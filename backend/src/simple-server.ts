@@ -25,11 +25,20 @@ if (process.env.DATABASE_URL) {
   });
 }
 
+// Redis connection - try to connect but don't fail if it doesn't work
 if (process.env.REDIS_URL) {
-  redisClient = createClient({
-    url: process.env.REDIS_URL
-  });
-  redisClient.connect().catch(console.error);
+  try {
+    redisClient = createClient({
+      url: process.env.REDIS_URL
+    });
+    redisClient.connect().catch((error) => {
+      console.log('Redis connection failed, continuing without Redis:', error.message);
+      redisClient = null;
+    });
+  } catch (error) {
+    console.log('Redis initialization failed, continuing without Redis:', error);
+    redisClient = null;
+  }
 }
 
 // Health check endpoint with database status
@@ -63,13 +72,19 @@ app.get('/health', async (req, res) => {
   }
 
   // Check Redis
-  if (redisClient && redisClient.isOpen) {
+  if (redisClient) {
     try {
-      await redisClient.ping();
-      health.database.redis = true;
+      if (redisClient.isOpen) {
+        await redisClient.ping();
+        health.database.redis = true;
+      } else {
+        console.log('Redis client not connected');
+      }
     } catch (error) {
       console.log('Redis check failed:', error);
     }
+  } else {
+    console.log('Redis client not initialized');
   }
 
   res.status(200).json(health);
